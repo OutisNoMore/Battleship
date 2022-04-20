@@ -1,2 +1,3 @@
 *.html
 UML*
+__pycache__
