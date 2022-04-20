@@ -15,9 +15,18 @@ from util import Window, Error, Flag
 from player import PlayerBoard, ComputerBoard
 import pygame
 
+class Text(pygame.sprite.Sprite):
+    def __init__(self, x, y, text):
+        super().__init__()
+        self.image = text
+        self.rect =self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
 class Cell(pygame.sprite.Sprite):
     def __init__(self, x, y):
-        self.image = pygame.image.load("tile.jpg").convert()
+        super().__init__()
+        self.image = pygame.image.load("bluetile.jpg").convert()
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -68,6 +77,12 @@ class GameBase:
         self._title = pygame.font.SysFont("Arial", 50) # Title Font
         self._text = pygame.font.SysFont("Arial", 25)  # Text Font
         self._boardX = 0 # X coordinate of board
+        self._sprites = pygame.sprite.LayeredUpdates()
+        self.drawGrid((self._width // 2) -250, 200, self._player) # draw player board
+        text = self._title.render("Battleship", False, (0, 0, 0)) # generate title text
+        x = (self._width // 2) - (text.get_rect().width // 2) # center text
+        title = Text(x, 10, text)
+        self._sprites.add(title)
 
     def mouseButtonDown(self, x, y):
         """Handles mouse click events
@@ -96,9 +111,15 @@ class GameBase:
                 posX = (x - 500) // 50 # convert to array index
                 posY = (y - 200) // 50 # convert to array index
                 err = self._player.add(posX, posY) # add ship coordinate to player board
+                text = self._text.render(f"{self._player.getChar(posX, posY)}", False, (0, 0, 0))
+                x = 500 + (posX * 50) 
+                y = 200 + (posY * 50)
                 if err == Error.ALREADY_SET:
                     # Allow user to delete a point for current ship
                     self._player.clearPoint(posX, posY)
+                    self._sprites.get_sprites_at((x, y))[1].kill()
+                elif err == Error.NO_ERROR:
+                    self._sprites.add(Text(x, y, text))
         elif self._window == Window.PLAYER_TURN:
             # Handle mouse click events when the player is attacking
             if (x >= self._boardX + 600 and x < self._boardX + 1100) and (y >= 200 and y < 700):
@@ -108,6 +129,8 @@ class GameBase:
                 result = self._computer.hit(posX, posY) # try attack on computer grid
                 if result == Flag.SUNK or result == Flag.HIT or result == Flag.MISS:
                     # make sure that result is valid
+                    text = self._text.render(f"{self._computer.getChar(posX, posY)}", False, (0, 0, 0))
+                    self._sprites.add(Text(self._boardX + 600 + posX*50, 200 + posY*50, text))
                     if self._computer.allSunk():
                         # If all ships have been sunk
                         self._window = Window.GAME_OVER # Change to Game over window
@@ -132,11 +155,12 @@ class GameBase:
         ________
           Nothing is returned - Grid is printed on screen
         """
-        blockSize = 50 # Set the size of the grid block
-        for x in range(posX, posX + 10*blockSize, blockSize):
-            for y in range(posY, posY + 10*blockSize, blockSize):
-                rect = pygame.Rect(x, y, blockSize, blockSize) # draw grid using squares
-                pygame.draw.rect(self._display, (0, 0, 0), rect, 1) # draw onto screen
+        blockSize = 45 # Set the size of the grid block
+        for x in range(posX, posX + 10*blockSize, blockSize + 5):
+            for y in range(posY, posY + 10*blockSize, blockSize + 5):
+                self._sprites.add(Cell(x, y))
+                #rect = pygame.Rect(x, y, blockSize, blockSize) # draw grid using squares
+                #pygame.draw.rect(self._display, (0, 0, 0), rect, 1) # draw onto screen
                 offsetX = (x - posX) // 50 # calculate array index
                 offsetY = (y - posY) // 50 # calculate array index
                 char = player.getChar(offsetX, offsetY) # get character at location
@@ -175,7 +199,8 @@ class GameBase:
           None
         """
         text = self._text.render(char, False, color) # Create text to print
-        self._display.blit(text, point) # Draw onto screen
+        self._sprites.add(Text(point[0], point[1], text))
+        #self._display.blit(text, point) # Draw onto screen
 
     def placeShip(self):
         """Window for player to place ships on their board
@@ -194,12 +219,19 @@ class GameBase:
         if self._player.allSet():
             # If all ships have been set, move to next window
             self._window = Window.PLAYER_TURN # Now player's turn to playgame
+            self._sprites.empty()
+            title = self._title.render("Battleship", False, (0, 0, 0)) # Game over text
+            x = (self._width // 2) - (title.get_rect().width // 2)   # get x coordinate for center of screen
+            self._sprites.add(Text(x, 10, title))
+            self._boardX = (self._width // 2) - (1100 // 2) # center boards
+            self._sprites.add
+            self.drawGrid(self._boardX, 200, self._player)   # print final player board
+            self.drawGrid(self._boardX + 600, 200, self._computer) # print final computer board
         else:
             # Allow user to place ships
             text = self._text.render(f"Place: {self._player.getCurrent().getName()}", False, (0, 0, 0)) # text to indicate which ship to place
             x = (self._width // 2) - 250 # x coordinate for text
             self._display.blit(text, (x, 200 - text.get_rect().height - 5)) # Put text on screen
-            self.drawGrid(x, 200, self._player) # draw player board
 
     def computerTurn(self):
         """Window to displaywhen it is the computer's turn
@@ -218,24 +250,30 @@ class GameBase:
         """
         coordinate = self._computer.makeMove()  # Get coordinates for computer's move
         err = self._player.hit(coordinate[0], coordinate[1]) # Make attack onto player's board
+        text = self._text.render(f"{self._player.getChar(coordinate[0], coordinate[1])}", False, (0, 0, 0))
+        ch = Text(self._boardX + (coordinate[0] * 50), 200 + (coordinate[1]*50), text)
         if err == Error.ALREADY_TRIED:
             # Coordinate has already been tried, try again
             self._computer.adjustOrientation() # Change direction to try
         elif self._player.allSunk():
             # All ships have been sunk, computer wins
             self._window = Window.GAME_OVER # go to game over
+            self._sprites.add(ch)
         elif err == Flag.HIT:
             # Successful attack
             self._computer.setTarget() # Set computer to target mode
             self._window = Window.PLAYER_TURN # Is now player's turn
+            self._sprites.add(ch)
         elif err == Flag.SUNK:
             # Ship has been sunk
             self._computer.setHunt() # Set computer to hunt mode
             self._window = Window.PLAYER_TURN # Is now player's turn
+            self._sprites.add(ch)
         elif err == Flag.MISS:
             # Attack unsuccessful, miss
             self._computer.adjustOrientation() # Change direction of attack
             self._window = Window.PLAYER_TURN  # Now player's turn
+            self._sprites.add(ch)
 
     def gameOver(self):
         """Game over window
@@ -251,10 +289,10 @@ class GameBase:
         _______
           None
         """
-        title = self._title.render("Game Over", False, (255, 0, 0), (200, 200, 200)) # Game over text
-        x = (self._width // 2) - (title.get_rect().width // 2)   # get x coordinate for center of screen
-        y = (self._height // 2) - (title.get_rect().height // 2) # get y coordinate for center of screen
-        self._display.blit(title, (x, y)) # Draw text onto center of screen
+        title = self._title.render("Game Over", False, (255, 0, 0), (200, 200, 200))
+        x = (self._width // 2)- (title.get_rect().width // 2)
+        y = y + title.get_rect().height
+        self._display.blit(text, (x, y)) # draw winner onto screen
         if self._win:
             # Player wins
             output = "You Win!"
@@ -279,11 +317,7 @@ class GameBase:
         _______
           None
         """
-        text = self._title.render("Battleship", False, (0, 0, 0)) # generate title text
-        x = (self._width // 2) - (text.get_rect().width // 2) # center text
-        self._display.blit(text, (x, 20)) # draw text onto screen
         if self._window != Window.PLACE_SHIP:
-            self._boardX = (self._width // 2) - (1100 // 2) # center boards
             text = self._text.render("Player Board", False, (0, 0, 0)) # Label player board
             newX = (250 - text.get_rect().width // 2) # center text on board
             newY = 200 - (text.get_rect().height + 10)
@@ -292,8 +326,8 @@ class GameBase:
             newX = (250 - text.get_rect().width // 2) # center text on board
             newY = 200 - (text.get_rect().height + 10)
             self._display.blit(text, (self._boardX + newX + 600, newY)) # draw text
-            self.drawGrid(self._boardX, 200, self._player)   # print final player board
-            self.drawGrid(self._boardX + 600, 200, self._computer) # print final computer board
+            #self.drawGrid(self._boardX, 200, self._player)   # print final player board
+            #self.drawGrid(self._boardX + 600, 200, self._computer) # print final computer board
         if self._window == Window.PLACE_SHIP:
             # Go to place ship window
             self.placeShip()
@@ -330,6 +364,7 @@ class GameBase:
                     self.mouseButtonDown(event.pos[0], event.pos[1])
             self._display.fill((255, 255, 255)) # fill background with white
             self.update() # update variables/sprite 
+            self._sprites.draw(self._display)
             pygame.display.update() # update display
         pygame.quit() # Quit pygame
 
