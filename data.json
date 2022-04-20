@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Carrier",
+    "size": 5,
+    "symbol": "C"
+  },
+  {
+    "name": "Battleship",
+    "size": 4,
+    "symbol": "B"
+  },
+  {
+    "name": "Cruiser",
+    "size": 3,
+    "symbol": "Cr"
+  },
+  {
+    "name": "Submarine",
+    "size": 3,
+    "symbol": "S"
+  },
+  {
+    "name": "Destroyer",
+    "size": 2,
+    "symbol": "D"
+  }
+]
