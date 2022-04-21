@@ -105,7 +105,6 @@ class GameBase:
             return
         if self._window == Window.PLACE_SHIP:
             # Handle mouse click events when user is placing ships
-            # MAke sure that player board dimensions updated!!!!
             if (x >= 500 and x < 1000) and (y >= 200 and y < 700):
                 # Make sure that x,y is inside player's grid
                 posX = (x - 500) // 50 # convert to array index
@@ -127,9 +126,15 @@ class GameBase:
                 posX = (x - self._boardX - 600) // 50 # convert to array index
                 posY = (y - 200) // 50 # convert to array index
                 result = self._computer.hit(posX, posY) # try attack on computer grid
-                if result == Flag.SUNK or result == Flag.HIT or result == Flag.MISS:
+                if result == Flag.MISS:
+                    color = (255, 0, 0)
+                    text = self._text.render(f"{self._computer.getChar(posX, posY)}", False, color)
+                    self._sprites.add(Text(self._boardX + 600 + posX*50, 200 + posY*50, text))
+                    self._window = Window.COMPUTER_TURN
+                if result == Flag.SUNK or result == Flag.HIT:
                     # make sure that result is valid
-                    text = self._text.render(f"{self._computer.getChar(posX, posY)}", False, (0, 0, 0))
+                    color = (0, 200, 0)
+                    text = self._text.render(f"{self._computer.getChar(posX, posY)}", False, color)
                     self._sprites.add(Text(self._boardX + 600 + posX*50, 200 + posY*50, text))
                     if self._computer.allSunk():
                         # If all ships have been sunk
@@ -156,8 +161,8 @@ class GameBase:
           Nothing is returned - Grid is printed on screen
         """
         blockSize = 45 # Set the size of the grid block
-        for x in range(posX, posX + 10*blockSize, blockSize + 5):
-            for y in range(posY, posY + 10*blockSize, blockSize + 5):
+        for x in range(posX, posX + 10*(blockSize+5), blockSize + 5):
+            for y in range(posY, posY + 10*(blockSize+5), blockSize + 5):
                 self._sprites.add(Cell(x, y))
                 #rect = pygame.Rect(x, y, blockSize, blockSize) # draw grid using squares
                 #pygame.draw.rect(self._display, (0, 0, 0), rect, 1) # draw onto screen
@@ -224,7 +229,6 @@ class GameBase:
             x = (self._width // 2) - (title.get_rect().width // 2)   # get x coordinate for center of screen
             self._sprites.add(Text(x, 10, title))
             self._boardX = (self._width // 2) - (1100 // 2) # center boards
-            self._sprites.add
             self.drawGrid(self._boardX, 200, self._player)   # print final player board
             self.drawGrid(self._boardX + 600, 200, self._computer) # print final computer board
         else:
@@ -250,30 +254,32 @@ class GameBase:
         """
         coordinate = self._computer.makeMove()  # Get coordinates for computer's move
         err = self._player.hit(coordinate[0], coordinate[1]) # Make attack onto player's board
-        text = self._text.render(f"{self._player.getChar(coordinate[0], coordinate[1])}", False, (0, 0, 0))
-        ch = Text(self._boardX + (coordinate[0] * 50), 200 + (coordinate[1]*50), text)
         if err == Error.ALREADY_TRIED:
             # Coordinate has already been tried, try again
             self._computer.adjustOrientation() # Change direction to try
+            return
         elif self._player.allSunk():
             # All ships have been sunk, computer wins
             self._window = Window.GAME_OVER # go to game over
-            self._sprites.add(ch)
+            color = (0, 255, 0)
         elif err == Flag.HIT:
             # Successful attack
             self._computer.setTarget() # Set computer to target mode
             self._window = Window.PLAYER_TURN # Is now player's turn
-            self._sprites.add(ch)
+            color = (0, 255, 0)
         elif err == Flag.SUNK:
             # Ship has been sunk
             self._computer.setHunt() # Set computer to hunt mode
             self._window = Window.PLAYER_TURN # Is now player's turn
-            self._sprites.add(ch)
+            color = (0, 255, 0)
         elif err == Flag.MISS:
             # Attack unsuccessful, miss
             self._computer.adjustOrientation() # Change direction of attack
             self._window = Window.PLAYER_TURN  # Now player's turn
-            self._sprites.add(ch)
+            color = (255, 0, 0)
+        text = self._text.render(f"{self._player.getChar(coordinate[0], coordinate[1])}", False, color, (5, 225, 250))
+        ch = Text(self._boardX + (coordinate[0] * 50), 200 + (coordinate[1]*50), text)
+        self._sprites.add(ch)
 
     def gameOver(self):
         """Game over window
@@ -290,9 +296,9 @@ class GameBase:
           None
         """
         title = self._title.render("Game Over", False, (255, 0, 0), (200, 200, 200))
-        x = (self._width // 2)- (title.get_rect().width // 2)
-        y = y + title.get_rect().height
-        self._display.blit(text, (x, y)) # draw winner onto screen
+        x = (self._width // 2) - (title.get_rect().width // 2)
+        y = (self._height // 2) - (title.get_rect().height // 2)
+        self._display.blit(title, (x, y)) # draw winner onto screen
         if self._win:
             # Player wins
             output = "You Win!"
@@ -326,8 +332,6 @@ class GameBase:
             newX = (250 - text.get_rect().width // 2) # center text on board
             newY = 200 - (text.get_rect().height + 10)
             self._display.blit(text, (self._boardX + newX + 600, newY)) # draw text
-            #self.drawGrid(self._boardX, 200, self._player)   # print final player board
-            #self.drawGrid(self._boardX + 600, 200, self._computer) # print final computer board
         if self._window == Window.PLACE_SHIP:
             # Go to place ship window
             self.placeShip()
@@ -363,8 +367,8 @@ class GameBase:
                     # handle all mouse clicks
                     self.mouseButtonDown(event.pos[0], event.pos[1])
             self._display.fill((255, 255, 255)) # fill background with white
-            self.update() # update variables/sprite 
             self._sprites.draw(self._display)
+            self.update() # update variables/sprite 
             pygame.display.update() # update display
         pygame.quit() # Quit pygame
 
