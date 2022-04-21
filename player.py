@@ -179,11 +179,10 @@ class PlayerBoard:
         _______
           None
         """
-        self._board[y][x] = 'E' # Set to empty
-        for ship in self._ships:
-            # Check all ships
-            if ship.isSet(x, y):
-                ship.remove(x, y)
+        pos = self._ships[self._currentShip].getPos()
+        if pos[0] == (x, y) or pos[-1] == (x, y):
+            self._board[y][x] = 'E' # Set to empty
+            self._ships[self._currentShip].remove(x, y)
 
     def hasShip(self, x, y):
         """Check if a ship exists at the given coordinates

@@ -116,7 +116,9 @@ class GameBase:
                 if err == Error.ALREADY_SET:
                     # Allow user to delete a point for current ship
                     self._player.clearPoint(posX, posY)
-                    self._sprites.get_sprites_at((x, y))[1].kill()
+                    if self._player.getChar(posX, posY) == 'E':
+                        # successfully cleared
+                        self._sprites.get_sprites_at((x, y))[1].kill()
                 elif err == Error.NO_ERROR:
                     self._sprites.add(Text(x, y, text))
         elif self._window == Window.PLAYER_TURN:
@@ -277,7 +279,7 @@ class GameBase:
             self._computer.adjustOrientation() # Change direction of attack
             self._window = Window.PLAYER_TURN  # Now player's turn
             color = (0, 200, 0)
-        text = self._text.render(f"{self._player.getChar(coordinate[0], coordinate[1])} ", False, color, (5, 225, 250))
+        text = self._text.render(f"{self._player.getChar(coordinate[0], coordinate[1])} ", False, color, (190, 253, 255))
         ch = Text(self._boardX + (coordinate[0] * 50), 200 + (coordinate[1]*50), text)
         self._sprites.add(ch)
 
