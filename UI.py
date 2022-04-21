@@ -15,13 +15,6 @@ from util import Window, Error, Flag
 from player import PlayerBoard, ComputerBoard
 import pygame
 
-class Cell(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        self.image = pygame.image.load("tile.jpg").convert()
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
 class GameBase:
     """Base class for printing the game
 
