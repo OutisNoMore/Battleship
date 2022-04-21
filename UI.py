@@ -261,23 +261,23 @@ class GameBase:
         elif self._player.allSunk():
             # All ships have been sunk, computer wins
             self._window = Window.GAME_OVER # go to game over
-            color = (0, 255, 0)
+            color = (255, 0, 0)
         elif err == Flag.HIT:
             # Successful attack
             self._computer.setTarget() # Set computer to target mode
             self._window = Window.PLAYER_TURN # Is now player's turn
-            color = (0, 255, 0)
+            color = (255, 0, 0)
         elif err == Flag.SUNK:
             # Ship has been sunk
             self._computer.setHunt() # Set computer to hunt mode
             self._window = Window.PLAYER_TURN # Is now player's turn
-            color = (0, 255, 0)
+            color = (255, 0, 0)
         elif err == Flag.MISS:
             # Attack unsuccessful, miss
             self._computer.adjustOrientation() # Change direction of attack
             self._window = Window.PLAYER_TURN  # Now player's turn
-            color = (255, 0, 0)
-        text = self._text.render(f"{self._player.getChar(coordinate[0], coordinate[1])}", False, color, (5, 225, 250))
+            color = (0, 200, 0)
+        text = self._text.render(f"{self._player.getChar(coordinate[0], coordinate[1])} ", False, color, (5, 225, 250))
         ch = Text(self._boardX + (coordinate[0] * 50), 200 + (coordinate[1]*50), text)
         self._sprites.add(ch)
 
