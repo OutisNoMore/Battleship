@@ -260,3 +260,6 @@ class Ship:
                     # No error if it is adjacent not along diagonal
                     return Error.NO_ERROR
             return Error.SPREAD_APART # Coordinates not adjacent
+
+    def __eq__(self, other):
+        return self._name == other._name

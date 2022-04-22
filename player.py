@@ -43,7 +43,6 @@ class PlayerBoard:
         self._ships = list()  # List of all ships
         self._currentShip = 0 # Index of the current ship
         self._initializeBoard(10, 10) # Create a 10x10 board
-        self._readShips() # Read in ship data from JSON file
 
     def _initializeBoard(self, width, height):
         """Initialize the board with characters
@@ -65,7 +64,7 @@ class PlayerBoard:
             for j in range(0, height):
                 self._board[i].append('E') # add 'E' for empty
 
-    def _readShips(self):
+    def readShips(self):
         """Read in ship data
 
         Read in ship data from JSON file
@@ -85,6 +84,9 @@ class PlayerBoard:
                 for ship in jsonData:
                     # Read each ship
                     boat = Ship(ship["name"], ship["size"], ship["symbol"])
+                    if boat in self._ships:
+                        print(f"ERROR: Ship {boat.getName()} already exists!")
+                        return False
                     self._ships.append(boat) # Add to list of ships
                 return True
         except IOError as error:
@@ -325,10 +327,10 @@ class ComputerBoard(PlayerBoard):
           None
         """
         super().__init__()  # Call parent init
-        self.placeShip()    # Randomly place ships for computer
         self._hunt = True   # Hunt mode for computer attack
         self._orientations = [4, 3, 2, 1] # Orientations for attack
         self._moves = list() # All moves made for attack
+        self._tries = 0
 
     def isComputer(self):
         """Checks if object is a computer
@@ -478,7 +480,10 @@ class ComputerBoard(PlayerBoard):
             while True:
                 startX = random.randint(0, 9) # Random x coordinate 
                 startY = random.randint(0, 9) # Random y coordinate
+                if self._tries == (10 * 10) / 2:
+                    break
                 if (startX % 2 == 0 and startY % 2 == 0) or (startX % 2 == 1 and startY % 2 == 1):
+                    self._tries += 1
                     break
             self._moves.clear() # clear all moves made
             self._moves.append((startX, startY)) # Start with the random coordinate
