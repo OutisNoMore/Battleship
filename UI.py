@@ -122,6 +122,10 @@ class GameBase:
         self._window = Window.PLACE_SHIP # keep track of window to display
         self._player = PlayerBoard() # Player Board
         self._computer = ComputerBoard() # Create Computer
+        if not (self._player.readShips() and self._computer.readShips()):
+            # check that json data read correctly for ships
+            self._gameOver = True
+        self._computer.placeShip()
         self._title = pygame.font.SysFont("Arial", 50) # Title Font
         self._text = pygame.font.SysFont("Arial", 25)  # Text Font
         self._boardX = 0 # X coordinate of board
