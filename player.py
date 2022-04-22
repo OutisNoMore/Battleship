@@ -85,6 +85,9 @@ class PlayerBoard:
                 for ship in jsonData:
                     # Read each ship
                     boat = Ship(ship["name"], ship["size"], ship["symbol"])
+                    if boat in self._ships:
+                        print(f"ERROR: Boat {boat.getName()} exists!")
+                        return False
                     self._ships.append(boat) # Add to list of ships
                 return True
         except IOError as error:
