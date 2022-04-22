@@ -476,8 +476,14 @@ class ComputerBoard(PlayerBoard):
         if self._hunt:
             # Hunt mode - try random coordinates until hit is made
             #self._orientations = [4, 3, 2, 1] # reset orientations
-            startX = random.randint(0, 9) # Random x coordinate 
-            startY = random.randint(0, 9) # Random y coordinate
+            while True:
+                startX = random.randint(0, 9) # Random x coordinate 
+                startY = random.randint(0, 9) # Random y coordinate
+                modX = startX % 2
+                modY = startY % 2
+                if (modX == 0 and modY== 0) or (modY == 1 and modX == 1):
+                    # hunt for parity
+                    break
             self._moves.clear() # clear all moves made
             self._moves.append((startX, startY)) # Start with the random coordinate
             return (startX, startY) # return the attempt
