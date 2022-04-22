@@ -97,6 +97,8 @@ class GameBase:
       _computer: Computer player object to make moves
       _title: font to print title
       _text: font to print text
+      _sprites: Layered Sprite group
+      _boardX: X coordinate of board as reference
     """
     def __init__(self, width, height):
         """Constructor that creates the game screen with the given dimensions
@@ -290,7 +292,7 @@ class GameBase:
             self._display.blit(text, (x, 200 - text.get_rect().height - 5)) # Put text on screen
 
     def computerTurn(self):
-        """Window to displaywhen it is the computer's turn
+        """Window to display when it is the computer's turn
 
         The computer makes its move at this point. This window
         passes very quickly, and so is usually just an attack
