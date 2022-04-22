@@ -179,11 +179,11 @@ class PlayerBoard:
         _______
           None
         """
-        self._board[y][x] = 'E' # Set to empty
-        for ship in self._ships:
-            # Check all ships
-            if ship.isSet(x, y):
-                ship.remove(x, y)
+        if self._ships[self._currentShip].isSet(x, y):
+            pos = self._ships[self._currentShip].getPos()
+            if (x, y) == pos[0] or (x, y) == pos[-1]:
+                self._board[y][x] = 'E' # Set to empty
+                self._ships[self._currentShip].remove(x, y)
 
     def hasShip(self, x, y):
         """Check if a ship exists at the given coordinates
@@ -475,9 +475,11 @@ class ComputerBoard(PlayerBoard):
         """
         if self._hunt:
             # Hunt mode - try random coordinates until hit is made
-            #self._orientations = [4, 3, 2, 1] # reset orientations
-            startX = random.randint(0, 9) # Random x coordinate 
-            startY = random.randint(0, 9) # Random y coordinate
+            while True:
+                startX = random.randint(0, 9) # Random x coordinate 
+                startY = random.randint(0, 9) # Random y coordinate
+                if (startX % 2 == 0 and startY % 2 == 0) or (startX % 2 == 1 and startY % 2 == 1):
+                    break
             self._moves.clear() # clear all moves made
             self._moves.append((startX, startY)) # Start with the random coordinate
             return (startX, startY) # return the attempt

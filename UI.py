@@ -127,11 +127,14 @@ class GameBase:
         """
         blockSize = 50 # Set the size of the grid block
         for x in range(posX, posX + 10*blockSize, blockSize):
+            offsetX = (x - posX) // 50 # calculate array index
+            self.boardText((0, 0, 0), f"{offsetX + 1}", (x, posY - 40))
             for y in range(posY, posY + 10*blockSize, blockSize):
                 rect = pygame.Rect(x, y, blockSize, blockSize) # draw grid using squares
                 pygame.draw.rect(self._display, (0, 0, 0), rect, 1) # draw onto screen
-                offsetX = (x - posX) // 50 # calculate array index
                 offsetY = (y - posY) // 50 # calculate array index
+                if x == posX:
+                    self.boardText((0, 0, 0), f"{chr(65 + offsetY)}", (posX - 40, y))
                 char = player.getChar(offsetX, offsetY) # get character at location
                 color = (0, 0, 0) # color code to print each character
                 if char == 'E':
@@ -191,7 +194,7 @@ class GameBase:
             # Allow user to place ships
             text = self._text.render(f"Place: {self._player.getCurrent().getName()}", False, (0, 0, 0)) # text to indicate which ship to place
             x = (self._width // 2) - 250 # x coordinate for text
-            self._display.blit(text, (x, 200 - text.get_rect().height - 5)) # Put text on screen
+            self._display.blit(text, (x, 200 - text.get_rect().height - 75)) # Put text on screen
             self.drawGrid(x, 200, self._player) # draw player board
 
     def computerTurn(self):
@@ -279,11 +282,11 @@ class GameBase:
             self._boardX = (self._width // 2) - (1100 // 2) # center boards
             text = self._text.render("Player Board", False, (0, 0, 0)) # Label player board
             newX = (250 - text.get_rect().width // 2) # center text on board
-            newY = 200 - (text.get_rect().height + 10)
+            newY = 200 - (text.get_rect().height + 80)
             self._display.blit(text, (self._boardX + newX, newY)) # draw Text
             text = self._text.render("Computer Board", False, (0, 0, 0)) # Label computer board
             newX = (250 - text.get_rect().width // 2) # center text on board
-            newY = 200 - (text.get_rect().height + 10)
+            newY = 200 - (text.get_rect().height + 80)
             self._display.blit(text, (self._boardX + newX + 600, newY)) # draw text
             self.drawGrid(self._boardX, 200, self._player)   # print final player board
             self.drawGrid(self._boardX + 600, 200, self._computer) # print final computer board
