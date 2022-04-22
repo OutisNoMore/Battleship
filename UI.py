@@ -164,7 +164,7 @@ class GameBase:
                 posX = (x - 500) // 50 # convert to array index
                 posY = (y - 200) // 50 # convert to array index
                 err = self._player.add(posX, posY) # add ship coordinate to player board
-                text = self._text.render(f"{self._player.getChar(posX, posY)}", False, (0, 0, 0))
+                text = self._text.render(f"{self._player.getChar(posX, posY)}", False, (0, 0, 255))
                 x = 500 + (posX * 50) # calculate x position on grid 
                 y = 200 + (posY * 50) # calculate y position on grid
                 if err == Error.ALREADY_SET:
@@ -219,10 +219,14 @@ class GameBase:
         """
         blockSize = 45 # Set the size of the grid block
         for x in range(posX, posX + 10*(blockSize+5), blockSize + 5):
+            offsetX = (x - posX) // 50 # calculate array index
+            self.boardText((0, 0, 0), f"{offsetX + 1}", (x, posY - 40)) # draw coordinate
             for y in range(posY, posY + 10*(blockSize+5), blockSize + 5):
                 self._sprites.add(Cell(x, y)) # add cell tile
-                offsetX = (x - posX) // 50 # calculate array index
                 offsetY = (y - posY) // 50 # calculate array index
+                if x == posX:
+                    # draw coordinate
+                    self.boardText((0, 0, 0), f"{chr(65 + offsetY)}", (posX - 40, y))
                 char = player.getChar(offsetX, offsetY) # get character at location
                 color = (0, 0, 0) # color code to print each character
                 if char == 'E':
@@ -289,7 +293,7 @@ class GameBase:
             # Allow user to place ships
             text = self._text.render(f"Place: {self._player.getCurrent().getName()}", False, (0, 0, 0)) # text to indicate which ship to place
             x = (self._width // 2) - 250 # x coordinate for text
-            self._display.blit(text, (x, 200 - text.get_rect().height - 5)) # Put text on screen
+            self._display.blit(text, (x, 200 - text.get_rect().height - 75)) # Put text on screen
 
     def computerTurn(self):
         """Window to display when it is the computer's turn
@@ -380,11 +384,11 @@ class GameBase:
         if self._window != Window.PLACE_SHIP:
             text = self._text.render("Player Board", False, (0, 0, 0)) # Label player board
             newX = (250 - text.get_rect().width // 2) # center text on board
-            newY = 200 - (text.get_rect().height + 10) # center text on board
+            newY = 200 - (text.get_rect().height + 80) # center text on board
             self._display.blit(text, (self._boardX + newX, newY)) # draw Text
             text = self._text.render("Computer Board", False, (0, 0, 0)) # Label computer board
             newX = (250 - text.get_rect().width // 2) # center text on board
-            newY = 200 - (text.get_rect().height + 10) # center text on board
+            newY = 200 - (text.get_rect().height + 80) # center text on board
             self._display.blit(text, (self._boardX + newX + 600, newY)) # draw text
         if self._window == Window.PLACE_SHIP:
             # Go to place ship window
