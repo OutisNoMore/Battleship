@@ -223,7 +223,7 @@ class Ship:
             return False # False otherwise
 
     def verifyLocation(self, x, y):
-        """Verify that the location for the ship
+        """Verify the location for the ship
 
         Used when placing coordinates for the ship to
         verify that the given coordinates are valid.
@@ -260,6 +260,3 @@ class Ship:
                     # No error if it is adjacent not along diagonal
                     return Error.NO_ERROR
             return Error.SPREAD_APART # Coordinates not adjacent
-
-    def __eq__(self, other):
-        return self._name == other._name

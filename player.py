@@ -481,8 +481,10 @@ class ComputerBoard(PlayerBoard):
                 startX = random.randint(0, 9) # Random x coordinate 
                 startY = random.randint(0, 9) # Random y coordinate
                 if self._tries == (10 * 10) / 2:
+                    # already tried all parity based moves
                     break
                 if (startX % 2 == 0 and startY % 2 == 0) or (startX % 2 == 1 and startY % 2 == 1):
+                    # Make attack based on parity
                     self._tries += 1
                     break
             self._moves.clear() # clear all moves made

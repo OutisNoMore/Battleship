@@ -59,8 +59,10 @@ class GameBase:
         self._player = PlayerBoard() # Player Board
         self._computer = ComputerBoard() # Create Computer
         if not (self._player.readShips() and self._computer.readShips()):
-            self._gameOver = True
+            # read ship data from json file
+            self._gameOver = True # bad ship data
         else:
+            # Successfully read ship data, now initialize computer board
             self._computer.placeShip()
         self._title = pygame.font.SysFont("Arial", 50) # Title Font
         self._text = pygame.font.SysFont("Arial", 25)  # Text Font
