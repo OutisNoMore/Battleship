@@ -64,7 +64,7 @@ class PlayerBoard:
             for j in range(0, height):
                 self._board[i].append('E') # add 'E' for empty
 
-    def readShips(self):
+    def initFleet(self):
         """Read in ship data
 
         Read in ship data from JSON file
@@ -480,12 +480,11 @@ class ComputerBoard(PlayerBoard):
             while True:
                 startX = random.randint(0, 9) # Random x coordinate 
                 startY = random.randint(0, 9) # Random y coordinate
-                if self._tries == (10 * 10) / 2:
+                if self._tries >= (10 * 10) / 2:
                     # already tried all parity based moves
                     break
                 if (startX % 2 == 0 and startY % 2 == 0) or (startX % 2 == 1 and startY % 2 == 1):
                     # Make attack based on parity
-                    self._tries += 1
                     break
             self._moves.clear() # clear all moves made
             self._moves.append((startX, startY)) # Start with the random coordinate
@@ -534,11 +533,15 @@ class ComputerBoard(PlayerBoard):
             # If in target mode - remove last attack: unsuccessful
             self._moves.pop()
             self._orientations.pop()
-        #self._orientations.pop() # Remove orientation
         if len(self._orientations) == 0:
-            # No more moves
-            del self._moves[1:] # start over from beginning
+            # No more orientations 
             self._orientations = [4, 3, 2, 1] # Try again
+            if len(self._moves) == 1:
+                # No more moves, no longer target mode
+                self._hunt = True
+                self._moves.clear()
+            else:
+                del self._moves[1:] # start over from beginning
 
     def setHunt(self):
         """Set to hunt mode
@@ -570,3 +573,19 @@ class ComputerBoard(PlayerBoard):
           None
         """
         self._hunt = False # set to target mode
+
+    def countTries(self):
+        """Counts how many tries have been made by computer
+
+        This counts how many successful tries the computer made
+        for attacks
+
+        Parameters:
+        ___________
+          None
+
+        Return:
+        _______
+          None
+        """
+        self._tries += 1

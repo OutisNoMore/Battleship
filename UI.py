@@ -58,7 +58,7 @@ class GameBase:
         self._window = Window.PLACE_SHIP # keep track of window to display
         self._player = PlayerBoard() # Player Board
         self._computer = ComputerBoard() # Create Computer
-        if not (self._player.readShips() and self._computer.readShips()):
+        if not (self._player.initFleet() and self._computer.initFleet()):
             # read ship data from json file
             self._gameOver = True # bad ship data
         else:
@@ -89,7 +89,7 @@ class GameBase:
             return
         if self._window == Window.PLACE_SHIP:
             # Handle mouse click events when user is placing ships
-            # MAke sure that player board dimensions updated!!!!
+            # Make sure that player board dimensions updated!!!!
             if (x >= 500 and x < 1000) and (y >= 200 and y < 700):
                 # Make sure that x,y is inside player's grid
                 posX = (x - 500) // 50 # convert to array index
@@ -230,14 +230,17 @@ class GameBase:
             # Successful attack
             self._computer.setTarget() # Set computer to target mode
             self._window = Window.PLAYER_TURN # Is now player's turn
+            self._computer.countTries() # count successful tries
         elif err == Flag.SUNK:
             # Ship has been sunk
             self._computer.setHunt() # Set computer to hunt mode
             self._window = Window.PLAYER_TURN # Is now player's turn
+            self._computer.countTries() # count successful tries
         elif err == Flag.MISS:
             # Attack unsuccessful, miss
             self._computer.adjustOrientation() # Change direction of attack
             self._window = Window.PLAYER_TURN  # Now player's turn
+            self._computer.countTries() # count successful tries
 
     def gameOver(self):
         """Game over window
