@@ -33,6 +33,7 @@ class GameBase:
       _computer: Computer player object to make moves
       _title: font to print title
       _text: font to print text
+      _tile: tile image
     """
     def __init__(self, width, height):
         """Constructor that creates the game screen with the given dimensions
@@ -67,6 +68,7 @@ class GameBase:
         self._title = pygame.font.SysFont("Arial", 50) # Title Font
         self._text = pygame.font.SysFont("Arial", 25)  # Text Font
         self._boardX = 0 # X coordinate of board
+        self._tile = pygame.image.load("bluetile.jpg") # tile image for grid
 
     def mouseButtonDown(self, x, y):
         """Handles mouse click events
@@ -136,8 +138,9 @@ class GameBase:
             offsetX = (x - posX) // 50 # calculate array index
             self.boardText((0, 0, 0), f"{offsetX + 1}", (x, posY - 40))
             for y in range(posY, posY + 10*blockSize, blockSize):
-                rect = pygame.Rect(x, y, blockSize, blockSize) # draw grid using squares
-                pygame.draw.rect(self._display, (0, 0, 0), rect, 1) # draw onto screen
+                #rect = pygame.Rect(x, y, blockSize, blockSize) # draw grid using squares
+                #pygame.draw.rect(self._display, (0, 0, 0), rect, 1) # draw onto screen
+                self._display.blit(self._tile, (x, y))
                 offsetY = (y - posY) // 50 # calculate array index
                 if x == posX:
                     self.boardText((0, 0, 0), f"{chr(65 + offsetY)}", (posX - 40, y))
@@ -149,11 +152,11 @@ class GameBase:
                 if not player.isComputer():
                     # Print user computer
                     if char == 'H': color = (255, 0, 0)   # Hits taken are red
-                    elif char == 'M': color = (0, 255, 0) # Misses are green
+                    elif char == 'M': color = (0, 200, 0) # Misses are green
                     else: color = (0, 0, 255)             # Ships are printed in blue
                 elif player.isComputer(): 
                     # Print computer board
-                    if char == 'H': color = (0, 255, 0)   # Successful hits are green
+                    if char == 'H': color = (0, 200, 0)   # Successful hits are green
                     elif char == 'M': color = (255, 0, 0) # Misses made are red
                     elif char == 'X': color = (0, 0, 255) # X to indicate sunken ship
                     else: continue # don't print ships
