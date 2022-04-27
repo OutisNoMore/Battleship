@@ -260,3 +260,18 @@ class Ship:
                     # No error if it is adjacent not along diagonal
                     return Error.NO_ERROR
             return Error.SPREAD_APART # Coordinates not adjacent
+
+    def __eq__(self, other):
+        """Checks if two ships are equal to each other
+
+        A ship is considered equal if they have the same name
+
+        Parameters:
+        ___________
+          other: ship object to compare
+
+        Return:
+        _______
+          Boolean: True if the two ships are the same, false otherwise
+        """
+        return self._name == other.getName()

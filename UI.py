@@ -29,8 +29,8 @@ class GameBase:
       _gameOver: Keep track of if game is over
       _win: Whether the player won
       _window: window to display
-      _player: Player object to make moves
-      _computer: Computer player object to make moves
+      _player: PlayerBoard object to make moves
+      _computer: ComputerBoard player object to make moves
       _title: font to print title
       _text: font to print text
       _tile: tile image
